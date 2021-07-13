@@ -1,4 +1,5 @@
 const net = require("net");
+const parser = require('./parser.js');
 
 class Request {
   constructor(options) {
@@ -65,7 +66,7 @@ class Request {
   }
 
   toString () {
-    return `${this.method} ${this.path} HTTP/1.1\r\n${Object.keys(this.headers)
+    return `${this.method} ${this.path} HTTP/1.1\r\n${Object.keys(this.headers) //有时候用实际的回车代替\n就可以只写\r
       .map((key) => `${key}: ${this.headers[key]}`)
       .join("\r\n")}\r\n\r\n${this.bodyText}`;
   }
@@ -221,5 +222,9 @@ void (async function () {
   });
 
   let response = await request.send();
-  console.log(response);
+
+  //将获取到的body渲染为dom树
+  let dom = parser.parseHTML(response.body);
+  console.log(JSON.stringify(dom, null, '    '))
+
 })();
