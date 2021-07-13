@@ -1,0 +1,38 @@
+//词法部分
+InputElement ::= WhiteSpace | LineTerminator | Comment | Token
+
+WhiteSpace ::= " " | "  "全角空格等其他空格
+
+LineTerminator ::= "\n" | "\r"
+
+Comment ::= SingleLineComment | MultiLineComment
+SingleLineComment ::= "/" "/" <any>*
+MultiLineComment ::= "/" "*" ([^*] | "*" [^/])* "*" "/"
+
+Token ::= Literal 直接量 ｜ Keywords 关键词 | Identifier 标识符 | Punctuator 标点符号
+Literal ::= NumberLiteral | StringLiteral | NullLiteral | BooleanLiteral 
+Keywords ::= "if" | "else" | "for" | "function" | ......
+Punctuator ::= "+" | "-" | "*" | "/" | "{" | "}" | ......
+
+
+//语法部分
+Program ::= Statement+
+
+Statement ::= ExpressionStatement | IfStatement | ForStatement | WhileStatement | VariableDeclaration 
+              | FunctionDeclaration | ClassDeclaration | BreakStatement | ReturnStatement | ContinueStatement 
+              | ThrowStatement | TryStatement | Block
+
+ExpressionStatement ::= Expression ";"
+
+Expression ::= AdditiveExpression
+
+AdditiveExpression ::= MultiplicativeExpression
+                       | AdditiveExpression("+" | "-") MultiplicativeExpression
+
+MultiplicativeExpression ::= UnaryExpression 单目（一元）运算符
+                             | MultiplicativeExpression("*" | "/") UnaryExpression
+
+
+UnaryExpression ::= PrimaryExpression | ("+" | "-" | "typeOf") PrimaryExpression
+
+PrimaryExpression ::= "("  Expression ")" | Literal | Identifier

@@ -1,0 +1,17 @@
+var a = 1;
+
+a() + 10 * x;
+
+if(a) {
+
+} else {
+
+}
+
+while(1) {
+
+}
+
+function foo () {
+  return abc;  
+}
