@@ -42,13 +42,36 @@ class Carousel extends Component{
     //   }
     // }, 3000)
    
+    let position = 0;
+
     this.root.addEventListener("mousedown", (event) => {
-      let mouseMove = (enevt) => {
-        console.log(2,event);
+      let children = this.root.children;
+      //The starting X coordinate after the mouse click
+      let startX = event.clientX;
+      let mouseMove = (event) => {
+        //Get the horizontal distance of the mouse movement
+        let x = event.clientX - startX;
+        //The position of the current element
+        let current = position - ((x - x % 900) / 900);
+        
+        for(let offset of [-1, 0, 1]) {
+          let pos = current + offset;
+          pos = (pos + children.length) % children.length;
+          children[pos].style.transition = 'none';
+          children[pos].style.transform = `translateX(${- pos * 900 + offset * 900 + x % 900}px)`;
+        }
       }
 
-      let mouseUp = (enevt) => {
-        console.log(3, event);
+      let mouseUp = (event) => {
+        let x = event.clientX - startX;
+        position = position - Math.round(x / 900);
+        
+        for(let offset of [0, - Math.sign(Math.round(x / 900) - x + 450 * Math.sign(x))]) {
+          let pos = position + offset;
+          pos = (pos + children.length) % children.length;
+          children[pos].style.transition = '';
+          children[pos].style.transform = `translateX(${- pos * 900 + offset * 900}px)`;
+        }
         document.removeEventListener("mousemove", mouseMove);
         document.removeEventListener("mouseup", mouseUp);
       }
