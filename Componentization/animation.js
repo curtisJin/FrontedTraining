@@ -23,11 +23,15 @@ const PAUSE_TIME = Symbol('pause-time');
 export class Timeline {
   
   constructor() { 
+    this.state = "Inited"; // State management of the timeline
     this[ANIMATIONS] = new Set();
     this[START_TIME] = new Map();
   }
 
   start() {
+    if(this.state !== "Inited") return;
+    
+    this.state = "started";
     let startTime = Date.now();
     this[PAUSE_TIME] = 0;
     this[TICK] = () => {
@@ -37,16 +41,19 @@ export class Timeline {
         let t;
 
         if(this[START_TIME].get(animation) < startTime) {
-          t = now - startTime - this[PAUSE_TIME];
+          t = now - startTime - this[PAUSE_TIME] - animation.delay;
         } else {
-          t = now - this[START_TIME].get(animation) - this[PAUSE_TIME];
+          t = now - this[START_TIME].get(animation) - this[PAUSE_TIME] - animation.delay;
         }
 
         if(animation.duration < t) {
           this[ANIMATIONS].delete(animation);
           t = animation.duration;
         }
-        animation.receiveTime(t);
+        
+        if(t > 0) {
+          animation.receiveTime(t);
+        }
       }
       this[TICK_HANDLER] = requestAnimationFrame(this[TICK]);
     }
@@ -55,13 +62,28 @@ export class Timeline {
   }
 
   pause() {
+    if(this.state !== "started") return;
+    this.state = "pause";
     this[PAUSE_START] = Date.now();
     cancelAnimationFrame(this[TICK_HANDLER]);
   }
 
   resume() {
+    if(this.state !== "pause") return;
+    this.state = "started";
     this[PAUSE_TIME] += Date.now() - this[PAUSE_START];
     this[TICK]();
+  }
+
+  reset() {
+    this.pause();
+    this.state = "Inited";
+    let startTime = Date.now();
+    this[PAUSE_TIME] = 0;
+    this[ANIMATIONS] = new Set();
+    this[START_TIME] = new Map();
+    this[PAUSE_START] = 0;
+    this[TICK_HANDLER] = null;
   }
 
   add(animation, startTime) {
@@ -75,6 +97,9 @@ export class Timeline {
 
 export class Animation {
   constructor(object, property, startValue, endValue, duration, delay,timingFunction , template) {
+    timingFunction = timingFunction || ( v => v);
+    template = template || ( v => v);
+    
     this.object = object;
     this.property = property;
     this.startValue = startValue;
@@ -87,6 +112,8 @@ export class Animation {
 
   receiveTime(time) {
     let range = this.endValue - this.startValue;
-    this.object[this.property] = this.template(this.startValue + range * time / this.duration);
+    //TimingFunction refers to a function that uses time to output progress,similar to cubic Bezier curve
+    let progress = this.timingFunction(time / this.duration);
+    this.object[this.property] = this.template(this.startValue + range * progress);
   }
 }

@@ -14,5 +14,8 @@
     "@babel/preset-env": "^7.14.7",
     "babel-loader": "^8.1.0",
     "webpack": "^4.44.1"
+  },
+  "dependencies": {
+    "cubic-bezier-easing": "^1.0.4"
   }
 }
