@@ -107,15 +107,6 @@ export class Recognize {
   }
 
   start(e, context) {
-    
-    context.startX = e.clientX, context.startY = e.clientY;
-
-    console.log('start', this.dispatcher);
-    this.dispatcher.dispatch("start", {
-      clientX: e.clientX,
-      clientY: e.clientY
-    });
-    
     context.points = [
       {
         t: Date.now(),
@@ -123,7 +114,7 @@ export class Recognize {
         y: e.clientY,
       },
     ];
-
+    (context.startX = e.clientX), (context.startY = e.clientY);
     context.isPan = false;
     context.isTap = true;
     context.isPress = false;
@@ -222,7 +213,6 @@ export class Recognize {
         clientY: e.clientY,
         isVertical: context.isVertical,
         isFlick: context.isFlick,
-        velocity: v
       });
     }
   }
